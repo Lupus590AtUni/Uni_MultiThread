@@ -15,9 +15,10 @@ DWORD WINAPI ThreadProc(LPVOID lpParameter)
 
 	while (1)
 	{
+		EnterCriticalSection(&g_cs);
 		sprintf(msg, "Thread %i", threadnum);
 		printf("[%i] %s\r\n", threadnum, msg);
-
+		LeaveCriticalSection(&g_cs);
 		if (terminate_app)
 			break;
 		Sleep(100);
@@ -32,6 +33,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	HANDLE  threadhdl[MAXTHREADS - 1];
 	DWORD   threadid;
 	int     index;
+
+	InitializeCriticalSection(&g_cs);
+
 
 	for (index = 0; index < MAXTHREADS; index++)
 	{
@@ -52,6 +56,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		CloseHandle(threadhdl[index]);
 	}
+
+	// Cleanup
+	DeleteCriticalSection(&g_cs);
 
 	getchar(); // pause
 
